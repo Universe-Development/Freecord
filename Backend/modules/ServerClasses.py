@@ -1,5 +1,6 @@
 import http.server
 import socketserver
+import json
 
 class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
     def list_directory(self, path):
@@ -7,14 +8,24 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
         return None
     
     def do_POST(self):
-        if self.path == '/getUserInfo': # TODO: Actually implement the fucking logic
+        if self.path == '/createUserAccount':
             content_length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_length)
             
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
-            self.wfile.write(b'{"status": "received"}')
+            try:
+                data = json.loads(body.decode('utf-8'))
+                name = data.get('name')
+                password = data.get('password')
+                
+                if name and password:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(b'{"status": "account created"}')
+                else:
+                    self.send_error(400, "Missing name or password")
+            except json.JSONDecodeError:
+                self.send_error(400, "Invalid JSON")
         else:
             self.send_error(404, "Not found")
 
