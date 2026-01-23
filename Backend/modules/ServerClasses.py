@@ -1,6 +1,8 @@
 import http.server
-import socketserver
 import json
+import socketserver
+from modules.database import Database
+from modules import ServerEvents as Events
 
 class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
     def list_directory(self, path):
@@ -15,10 +17,16 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 data = json.loads(body.decode('utf-8'))
                 name = data.get('name')
-                password = data.get('password')
+                passwdhash = data.get('passwdhash')
                 
-                if name and password:
-                    self.send_response(200)
+                if name and passwdhash:
+                    
+                    success, message = Events.create_account(name, passwdhash, Database.FreecordDB)
+                    if not success:
+                        self.send_error(400, message)
+                        return
+
+                    self.send_response(200, message)
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
                     self.wfile.write(b'{"status": "account created"}')

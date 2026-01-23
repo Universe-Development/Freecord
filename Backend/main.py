@@ -9,7 +9,7 @@ server = ServerClasses.MessageServer()
 db = Database.FreecordDB("freecord_data")
 
 def main():
-    if 'users' not in db.list_tables():
+    if db.exists_table('users') == False:
         db.create_table('users')
     
     print("db info ", db.get_info())
@@ -26,3 +26,8 @@ if __name__ == "__main__":
         db.close()
         server.stop()
         print("Server stopped. database saved")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        db.close()
+        server.stop()
+        print("Server stopped due to error. database saved")

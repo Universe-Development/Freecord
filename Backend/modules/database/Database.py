@@ -3,6 +3,15 @@ import zlib
 import os
 from typing import Any, Dict, List, Optional
 
+def singleton(cls):
+    instances = {}
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    return get_instance
+
+@singleton
 class FreecordDB:
     def __init__(self, db_path: str):
         self.db_path = db_path if db_path.endswith('.fcdb') else f"{db_path}.fcdb"
@@ -39,6 +48,11 @@ class FreecordDB:
         
         self.tables[table_name] = []
         self.save()
+
+    def exists_table(self, table_name: str) -> bool:
+        if table_name in self.tables:
+            return True
+        return False
     
     def drop_table(self, table_name: str) -> None:
         if table_name not in self.tables:
@@ -60,6 +74,19 @@ class FreecordDB:
         self.tables[table_name].append(row)
         self.save()
         return row_id
+    
+    def exists(self, table_name: str, where: Optional[Dict[str, Any]] = None) -> bool:
+        if table_name not in self.tables:
+            raise ValueError(f"Table '{table_name}' does not exist")
+        
+        rows = self.tables[table_name]
+        if where is None:
+            return len(rows) > 0
+        
+        for row in rows:
+            if self._row_matches_conditions(row, where):
+                return True
+        return False
     
     def select(self, table_name: str, where: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         if table_name not in self.tables:
