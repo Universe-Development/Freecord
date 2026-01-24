@@ -45,14 +45,14 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
                 passwdhash = data.get('passwdhash')
 
                 if name and passwdhash:
-                    user_list = Database.FreecordDB().select("users", {"name": name})
+                    user_list = Database.FreecordDB().select("users", {"username": name})
                     
                     if not user_list:
                         self.send_error(404, "User doesn't exist")
                         return
 
                     user = user_list[0]
-                    if user['passwdhash'] == passwdhash:
+                    if user['hashed_passwd'] == passwdhash:
                         response_data = {
                             "status": "success",
                             "message": "Logged in successfully",
@@ -69,7 +69,6 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
                         self.send_error(401, "Invalid password")
                 else:
                     self.send_error(400, "Missing name or password")
-
             except json.JSONDecodeError:
                 self.send_error(400, "Invalid JSON")
             except Exception as e:
