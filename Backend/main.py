@@ -8,6 +8,14 @@ PORT = 9042
 server = ServerClasses.MessageServer()
 db = Database.FreecordDB("freecord_data")
 
+db_test = Database.FreecordDB()
+
+if db == db_test:
+    print("Database singletoen test passed")
+else:
+    print("Database singleton test failed")
+    exit(1)
+
 def main():
     if db.exists_table('users') == False:
         db.create_table('users')
