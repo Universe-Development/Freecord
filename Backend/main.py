@@ -1,7 +1,5 @@
 from modules import ServerClasses
 from modules.database import Database
-import http.server
-import time
 
 PORT = 9042
 
