@@ -5,6 +5,8 @@ from modules.database import Database
 from modules import ServerEvents as Events
 
 class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
+    db: Database.FreecordDB = None
+
     def list_directory(self, path):
         self.send_error(403, "Directory listing not allowed")
         return None
@@ -20,7 +22,7 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
                 passwdhash = data.get('passwdhash')
                 
                 if name and passwdhash:
-                    success, message = Events.create_account(name, passwdhash, Database.FreecordDB)
+                    success, message = Events.create_account(name, passwdhash, self.db)
                     if not success:
                         self.send_error(400, message)
                         return
@@ -34,7 +36,8 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
             except json.JSONDecodeError:
                 self.send_error(400, "Invalid JSON")
             except Exception as e:
-                self.send_error(400, e)
+                self.send_error(400, str(e))
+
         elif self.path == '/login':
             content_length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_length)
@@ -45,7 +48,7 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
                 passwdhash = data.get('passwdhash')
 
                 if name and passwdhash:
-                    user_list = Database.FreecordDB().select("users", {"username": name})
+                    user_list = self.db.select("users", {"username": name})
                     
                     if not user_list:
                         self.send_error(404, "User doesn't exist")
@@ -73,27 +76,16 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(400, "Invalid JSON")
             except Exception as e:
                 self.send_error(500, str(e))
-        elif self.path == '/createServer':
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length)
-            
-            try:
-                data = json.loads(body.decode('utf-8'))
-                name = data.get('name')
-                
-
-            except json.JSONDecodeError:
-                self.send_error(400, "Invalid JSON")
-            except Exception as e:
-                self.send_error(400, e)
         else:
             self.send_error(404, "Not found")
+
 
 class MessageServer:
     def __init__(self):
         self.httpd = None
 
-    def start(self, port=9042):
+    def start(self, port: int, db: Database.FreecordDB):
+        MessageServerHandler.db = db
         self.httpd = socketserver.TCPServer(("0.0.0.0", port), MessageServerHandler)
         self.httpd.serve_forever()
 

@@ -6,14 +6,6 @@ PORT = 9042
 server = ServerClasses.MessageServer()
 db = Database.FreecordDB("freecord_data")
 
-db_test = Database.FreecordDB()
-
-if db == db_test:
-    print("Database singletoen test passed")
-else:
-    print("Database singleton test failed")
-    exit(1)
-
 def main():
     if db.exists_table('users') == False:
         db.create_table('users')
@@ -23,7 +15,7 @@ def main():
     
     print("db info ", db.get_info())
 
-    server.start(PORT)
+    server.start(PORT, db)
 
 if __name__ == "__main__":
     print(f"Server is running on port {PORT}. Press Ctrl+C to stop.")

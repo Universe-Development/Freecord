@@ -3,15 +3,7 @@ import zlib
 import os
 from typing import Any, Dict, List, Optional
 
-def singleton(cls):
-    instances = {}
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-        return instances[cls]
-    return get_instance
 
-@singleton
 class FreecordDB:
     def __init__(self, db_path: str):
         self.db_path = db_path if db_path.endswith('.fcdb') else f"{db_path}.fcdb"
@@ -25,7 +17,7 @@ class FreecordDB:
             self.tables = {}
             self.save()
     
-    def _load_from_file(self) -> None: # I copied this from stackoverflow idk how this works btw thats why i made the AI docs i put the code and asked claude if he can make a documentation for it LOL
+    def _load_from_file(self) -> None:
         try:
             with open(self.db_path, 'rb') as f:
                 compressed_data = f.read()
@@ -37,7 +29,7 @@ class FreecordDB:
     
     def save(self) -> None:
         json_data = json.dumps(self.tables, indent=2).encode()
-        compressed_data = zlib.compress(json_data, level=9) # the compression makes it fail 9/10 times
+        compressed_data = zlib.compress(json_data, level=9)
         
         with open(self.db_path, 'wb') as f:
             f.write(compressed_data)

@@ -1,6 +1,13 @@
 import time
 import threading
-from modules.database.Database import singleton
+
+def singleton(cls):
+    instances = {}
+    def get_instance(*args, **kwargs):
+        if cls not in instances:
+            instances[cls] = cls(*args, **kwargs)
+        return instances[cls]
+    return get_instance
 
 @singleton
 class SnowflakeIDGenerator:
@@ -10,9 +17,7 @@ class SnowflakeIDGenerator:
         self.last_timestamp = -1
 
         self.sequence_bits = 12
-
         self.max_sequence = -1 ^ (-1 << self.sequence_bits)
-
         self.timestamp_shift = self.sequence_bits
 
         self.lock = threading.Lock()
@@ -42,7 +47,6 @@ class SnowflakeIDGenerator:
 
             self.last_timestamp = timestamp
 
-            id_ = ((timestamp - self.epoch) << self.timestamp_shift) | \
-                  self.sequence
+            id_ = ((timestamp - self.epoch) << self.timestamp_shift) | self.sequence
 
             return id_
