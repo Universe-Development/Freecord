@@ -4,6 +4,9 @@ import socketserver
 from modules.database import Database
 from modules import ServerEvents as Events
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+
 class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
     db: Database.FreecordDB = None
 
@@ -86,7 +89,7 @@ class MessageServer:
 
     def start(self, port: int, db: Database.FreecordDB):
         MessageServerHandler.db = db
-        self.httpd = socketserver.TCPServer(("0.0.0.0", port), MessageServerHandler)
+        self.httpd = ThreadedTCPServer(("0.0.0.0", port), MessageServerHandler)
         self.httpd.serve_forever()
 
     def stop(self):

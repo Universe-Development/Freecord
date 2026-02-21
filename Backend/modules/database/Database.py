@@ -1,6 +1,7 @@
 import json
 import zlib
 import os
+import threading
 from typing import Any, Dict, List, Optional
 
 
@@ -8,6 +9,7 @@ class FreecordDB:
     def __init__(self, db_path: str):
         self.db_path = db_path if db_path.endswith('.fcdb') else f"{db_path}.fcdb"
         self.tables: Dict[str, List[Dict[str, Any]]] = {}
+        self._lock = threading.Lock()
         self.load_or_create()
     
     def load_or_create(self) -> None:
@@ -32,12 +34,13 @@ class FreecordDB:
         json_data = json.dumps(self.tables, indent=2).encode()
         compressed_data = zlib.compress(json_data, level=9)
         
-        with open(tmp_path, 'wb') as f:
-            f.write(compressed_data)
-            f.flush()
-            os.fsync(f.fileno())
-        
-        os.replace(tmp_path, self.db_path)
+        with self._lock:
+            with open(tmp_path, 'wb') as f:
+                f.write(compressed_data)
+                f.flush()
+                os.fsync(f.fileno())
+            
+            os.replace(tmp_path, self.db_path)
     
     def create_table(self, table_name: str) -> None:
         if table_name in self.tables:
