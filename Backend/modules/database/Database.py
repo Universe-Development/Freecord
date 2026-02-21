@@ -28,11 +28,16 @@ class FreecordDB:
             raise ValueError(f"Failed to load database m:{e}")
     
     def save(self) -> None:
+        tmp_path = self.db_path + '.tmp'
         json_data = json.dumps(self.tables, indent=2).encode()
         compressed_data = zlib.compress(json_data, level=9)
         
-        with open(self.db_path, 'wb') as f:
+        with open(tmp_path, 'wb') as f:
             f.write(compressed_data)
+            f.flush()
+            os.fsync(f.fileno())
+        
+        os.replace(tmp_path, self.db_path)
     
     def create_table(self, table_name: str) -> None:
         if table_name in self.tables:
