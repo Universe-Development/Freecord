@@ -73,6 +73,19 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(400, "Invalid JSON")
             except Exception as e:
                 self.send_error(500, str(e))
+        elif self.path == '/createServer':
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(content_length)
+            
+            try:
+                data = json.loads(body.decode('utf-8'))
+                name = data.get('name')
+                
+
+            except json.JSONDecodeError:
+                self.send_error(400, "Invalid JSON")
+            except Exception as e:
+                self.send_error(400, e)
         else:
             self.send_error(404, "Not found")
 
