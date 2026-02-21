@@ -6,3 +6,10 @@ def create_account(username, hashed_passwd, db: Database.FreecordDB) -> tuple[bo
         return False, message
 
     return True, "Account created successfully"
+
+def create_server(name, db: Database.FreecordDB) -> tuple[bool, str]:
+    success, message = DBEvents#.add_server(name, db)
+    if not success:
+        return False, message
+    
+    return True, "Server created successfully"

@@ -17,6 +17,9 @@ else:
 def main():
     if db.exists_table('users') == False:
         db.create_table('users')
+
+    if db.exists_table('servers') == False:
+        db.create_table('servers')
     
     print("db info ", db.get_info())
 

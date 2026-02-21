@@ -15,3 +15,8 @@ def add_user(username, hashed_passwd, db: Database.FreecordDB) -> tuple[bool, st
         return False, f"Failed to add user: {e}"
     
     return True, "User added successfully"
+
+def add_server(name, db : Database.FreecordDB) -> tuple[bool, str]:
+    if not db:
+        return False, "no database"
+    
