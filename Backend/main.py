@@ -13,6 +13,9 @@ def main():
     if db.exists_table('servers') == False:
         db.create_table('servers')
 
+    if db.exists_table('channels') == False:
+        db.create_table('channels')
+
     print("db info ", db.get_info())
 
     server.start(PORT, db)
