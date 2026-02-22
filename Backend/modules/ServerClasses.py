@@ -13,17 +13,17 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
     def list_directory(self, path):
         self.send_error(403, "Directory listing not allowed")
         return None
-    
+
     def do_POST(self):
         if self.path == '/createUserAccount':
             content_length = int(self.headers.get('Content-Length', 0))
             body = self.rfile.read(content_length)
-            
+
             try:
                 data = json.loads(body.decode('utf-8'))
                 name = data.get('name')
                 passwdhash = data.get('passwdhash')
-                
+
                 if name and passwdhash:
                     success, message = Events.create_account(name, passwdhash, self.db)
                     if not success:
@@ -52,7 +52,7 @@ class MessageServerHandler(http.server.SimpleHTTPRequestHandler):
 
                 if name and passwdhash:
                     user_list = self.db.select("users", {"username": name})
-                    
+
                     if not user_list:
                         self.send_error(404, "User doesn't exist")
                         return

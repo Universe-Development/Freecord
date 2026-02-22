@@ -11,5 +11,5 @@ def create_server(name, db: Database.FreecordDB) -> tuple[bool, str]:
     success, message = DBEvents.add_server(name, db)
     if not success:
         return False, message
-    
+
     return True, "Server created successfully"

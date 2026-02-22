@@ -12,7 +12,7 @@ def main():
 
     if db.exists_table('servers') == False:
         db.create_table('servers')
-    
+
     print("db info ", db.get_info())
 
     server.start(PORT, db)
