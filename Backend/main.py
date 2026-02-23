@@ -16,6 +16,21 @@ def main():
     if db.exists_table('channels') == False:
         db.create_table('channels')
 
+    if db.exists_table('members') == False:
+        db.create_table('members')
+
+    if db.exists_table('messages') == False:
+        db.create_table('messages')
+
+    if db.exists_table('invites') == False:
+        db.create_table('invites')
+
+    if db.exists_table('dm_channels') == False:
+        db.create_table('dm_channels')
+
+    if db.exists_table('dm_messages') == False:
+        db.create_table('dm_messages')
+
     print("db info ", db.get_info())
 
     server.start(PORT, db)
